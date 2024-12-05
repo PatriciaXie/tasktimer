@@ -130,12 +130,12 @@ void load_task(gpointer user_data) {
         }
         char *state;
         switch (task->state) {
-            case 0: state = "待办"; break;
-            case 1: state = "完成"; break;
-            case 2: state = "归档"; break;
-            case 3: state = "删除"; break;
-            case 4: state = "ing"; break;
-            default: state = "未知"; break;
+            case 0: state = "to do"; break;
+            case 1: state = "finish"; break;
+            case 2: state = "archived"; break;
+            case 3: state = "deleted"; break;
+            case 4: state = "=="; break;
+            default: state = "unknown"; break;
         }
 
         char buffer2[20];
@@ -174,12 +174,12 @@ void on_add_task_button_clicked(GtkWidget *widget, gpointer user_data) {
     gtk_list_store_append(list_store, &iter);
     char *state;
     switch (task->state) {
-        case 0: state = "待办"; break;
-        case 1: state = "完成"; break;
-        case 2: state = "归档"; break;
-        case 3: state = "删除"; break;
-        case 4: state = "ing"; break;
-        default: state = "未知"; break;
+        case 0: state = "to do"; break;
+        case 1: state = "finish"; break;
+        case 2: state = "archived"; break;
+        case 3: state = "deleted"; break;
+        case 4: state = "=="; break;
+        default: state = "unknown"; break;
     }
     gtk_list_store_set(list_store, &iter,
         0, task->id,
@@ -254,9 +254,9 @@ void revise_task(GtkWidget *widget, gpointer user_data) {
     gtk_entry_set_text(GTK_ENTRY(task_entry), task->name);
 
     // 创建 importance 单选按钮，三个Toggle按钮
-    GtkWidget *importance_button0 = gtk_toggle_button_new_with_label("无关");
-    GtkWidget *importance_button1 = gtk_toggle_button_new_with_label("一般");
-    GtkWidget *importance_button2 = gtk_toggle_button_new_with_label("重要");
+    GtkWidget *importance_button0 = gtk_toggle_button_new_with_label("no");
+    GtkWidget *importance_button1 = gtk_toggle_button_new_with_label("kind");
+    GtkWidget *importance_button2 = gtk_toggle_button_new_with_label("very");
     // 设置初始按钮状态
     switch (task->importance_degree) {
         case 0: {
@@ -287,9 +287,9 @@ void revise_task(GtkWidget *widget, gpointer user_data) {
     gtk_container_add(GTK_CONTAINER(importance_box), importance_button2);
 
     // 创建 importance 单选按钮，三个Toggle按钮
-    GtkWidget *emergency_button0 = gtk_toggle_button_new_with_label("不慌");
-    GtkWidget *emergency_button1 = gtk_toggle_button_new_with_label("一般");
-    GtkWidget *emergency_button2 = gtk_toggle_button_new_with_label("紧急");
+    GtkWidget *emergency_button0 = gtk_toggle_button_new_with_label("on");
+    GtkWidget *emergency_button1 = gtk_toggle_button_new_with_label("kind");
+    GtkWidget *emergency_button2 = gtk_toggle_button_new_with_label("very");
     // 设置初始按钮状态
     switch (task->emergency_degree) {
         case 0: {
@@ -328,9 +328,9 @@ void revise_task(GtkWidget *widget, gpointer user_data) {
 
 
     // 创建 state 单选按钮，三个Toggle按钮
-    GtkWidget *state_button0 = gtk_toggle_button_new_with_label("待办");
-    GtkWidget *state_button1 = gtk_toggle_button_new_with_label("归档");
-    GtkWidget *state_button2 = gtk_toggle_button_new_with_label("无效");
+    GtkWidget *state_button0 = gtk_toggle_button_new_with_label("to do");
+    GtkWidget *state_button1 = gtk_toggle_button_new_with_label("archived");
+    GtkWidget *state_button2 = gtk_toggle_button_new_with_label("invalid");
     // 设置初始按钮状态
     switch (task->state) {
         case 0: {
@@ -467,12 +467,12 @@ void on_edit_task_button_clicked(GtkWidget *widget, gpointer user_data) {
         // 刷新列表
         char *state;
         switch (task->state) {
-            case 0: state = "待办"; break;
-            case 1: state = "完成"; break;
-            case 2: state = "归档"; break;
-            case 3: state = "删除"; break;
-            case 4: state = "ing"; break;
-            default: state = "未知"; break;
+            case 0: state = "to do"; break;
+            case 1: state = "finish"; break;
+            case 2: state = "archived"; break;
+            case 3: state = "deleted"; break;
+            case 4: state = "=="; break;
+            default: state = "unknown"; break;
         }
 
         int spent_second = 0;
@@ -569,12 +569,12 @@ void on_start_task_button_clicked(GtkWidget *widget, gpointer user_data){
         if (err_inf == 0) {
             char *state;
             switch (task->state) {
-                case 0: state = "待办"; break;
-                case 1: state = "完成"; break;
-                case 2: state = "归档"; break;
-                case 3: state = "删除"; break;
-                case 4: state = "ing"; break;
-                default: state = "未知"; break;
+                case 0: state = "to do"; break;
+                case 1: state = "finish"; break;
+                case 2: state = "archived"; break;
+                case 3: state = "deleted"; break;
+                case 4: state = "=="; break;
+                default: state = "unknown"; break;
             }
             gtk_list_store_set(list_store, &iter, 1, state, 7, task->num_execution, -1);
             GtkWidget *main_window = data->window;
@@ -654,12 +654,12 @@ void on_stop_task_button_clicked(GtkWidget *widget, gpointer user_data) {
                 strcpy(task->execution_note[task->num_execution-1], gtk_entry_get_text(GTK_ENTRY(note_entry)));
                 char *state;
                 switch (task->state) {
-                    case 0: state = "待办"; break;
-                    case 1: state = "完成"; break;
-                    case 2: state = "归档"; break;
-                    case 3: state = "删除"; break;
-                    case 4: state = "ing"; break;
-                    default: state = "未知"; break;
+                    case 0: state = "to do"; break;
+                    case 1: state = "finish"; break;
+                    case 2: state = "archived"; break;
+                    case 3: state = "deleted"; break;
+                    case 4: state = "=="; break;
+                    default: state = "unknown"; break;
                 }
                 int spent_second = 0;
                 for (int j = 0; j < task->num_execution; j++) {

@@ -59,9 +59,9 @@ static void activate(GtkApplication *app, gpointer user_data) {
 
     // 1. 工具栏
     GtkWidget *toolbar = gtk_toolbar_new();// 创建工具栏
-    GtkToolItem *toolbar_open_button = gtk_tool_button_new(NULL, "重载"); // 创建打开按钮
-    GtkToolItem *toolbar_save_button = gtk_tool_button_new(NULL, "保存"); // 创建保存按钮
-    GtkToolItem *toolbar_about_button = gtk_tool_button_new(NULL, "关于"); // 创建关于按钮
+    GtkToolItem *toolbar_open_button = gtk_tool_button_new(NULL, "reload"); // 创建打开按钮
+    GtkToolItem *toolbar_save_button = gtk_tool_button_new(NULL, "save"); // 创建保存按钮
+    GtkToolItem *toolbar_about_button = gtk_tool_button_new(NULL, "about"); // 创建关于按钮
     gtk_toolbar_insert(GTK_TOOLBAR(toolbar), toolbar_open_button, -1); // 将打开按钮放进工具栏
     gtk_toolbar_insert(GTK_TOOLBAR(toolbar), toolbar_save_button, -1); // 将保存按钮放进工具栏
     gtk_toolbar_insert(GTK_TOOLBAR(toolbar), toolbar_about_button, -1); // 将关于按钮放进工具栏
