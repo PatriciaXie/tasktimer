@@ -1,0 +1,27 @@
+{
+	"setting":	{
+		"app_name":	"TTimer",
+		"author":	"Nianhao Xie",
+		"version":	"1.2.0",
+		"date":	"2024-12-03",
+		"introduction":	"Your personal task assistant.",
+		"num_task":	1,
+		"num_category":	4,
+		"name_category":	[{
+				"key":	0,
+				"name":	"N/A"
+			}, {
+				"key":	1,
+				"name":	"Work"
+			}, {
+				"key":	2,
+				"name":	"Game"
+			}, {
+				"key":	3,
+				"name":	"Life"
+			}],
+		"active":	false,
+		"change_unsaved":	false,
+		"selected_id":	-1
+	}
+}

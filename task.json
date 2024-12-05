@@ -1,0 +1,31 @@
+{
+	"task":	[{
+			"id":	0,
+			"name":	"Example",
+			"category":	0,
+			"importance_degree":	1,
+			"emergency_degree":	0,
+			"create_time":	"2024-11-18T10:48:50",
+			"revise_time":	"2024-11-20T14:48:51",
+			"plan_start_time":	"2024-11-29T08:00:00",
+			"plan_due_time":	"2024-12-01T00:00:00",
+			"num_roadmap":	0,
+			"plan_roadmap":	[],
+			"plan_progress":	50,
+			"num_execution":	2,
+			"execution":	[{
+					"key":	0,
+					"start":	"2024-12-04T08:00:00",
+					"end":	"2024-12-04T08:10:00",
+					"duration":	600,
+					"note":	"breakfast"
+				}, {
+					"key":	1,
+					"start":	"2024-12-04T08:15:00",
+					"end":	"2024-12-04T08:20:00",
+					"duration":	300,
+					"note":	"go to work"
+				}],
+			"state":	0
+		}]
+}
