@@ -122,6 +122,29 @@ void sort_time(const time_t *time_list, int *idxes, const int num_idx) {
     }
 }
 
+void sort_time2(int *time_list, int *idxes, const int num_idx) {
+    // 冒泡算法
+    int list[num_idx];
+    for (int i = 0; i < num_idx; i++) {
+        list[i] = time_list[i];
+    }
+    bool not_sorted = true;
+    while (not_sorted) {
+        not_sorted = false;
+        for (int i = 0; i < num_idx-1; i++) {
+            if (list[i] > list[i+1]) {
+                int tmp_time = list[i];
+                list[i] = list[i+1];
+                list[i+1] = tmp_time;
+                int tmp_idx = idxes[i];
+                idxes[i] = idxes[i+1];
+                idxes[i+1] = tmp_idx;
+                not_sorted = true;
+            }
+        }
+    }
+}
+
 int print_time_interval(TTimerTask **all_task, const TTimerSetting *setting, const time_t start_time, const time_t end_time, const int flag, const int week) {
     int num_task = 0; // 被选中的task数
     int num_execution = 0; // 被选中的execution数量

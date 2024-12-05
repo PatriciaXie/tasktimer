@@ -194,7 +194,7 @@ static void activate(GtkApplication *app, gpointer user_data) {
     gtk_tree_view_set_grid_lines(GTK_TREE_VIEW(treeview_today), GTK_TREE_VIEW_GRID_LINES_BOTH);
     GtkWidget *scrolled_window_today = gtk_scrolled_window_new(NULL, NULL);
     gtk_container_add(GTK_CONTAINER(scrolled_window_today), treeview_today);
-    gtk_box_pack_start(GTK_BOX(today_box), scrolled_window_today, TRUE, TRUE, 0);
+
     gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolled_window_today), GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
 
 
@@ -210,7 +210,7 @@ static void activate(GtkApplication *app, gpointer user_data) {
     gtk_box_pack_start(GTK_BOX(today_button_box), today_today_button, FALSE, FALSE, 0);
     gtk_box_pack_start(GTK_BOX(today_button_box), today_week_button, FALSE, FALSE, 0);
     gtk_box_pack_start(GTK_BOX(today_box), today_button_box, FALSE, FALSE, 0);
-
+    gtk_box_pack_start(GTK_BOX(today_box), scrolled_window_today, TRUE, TRUE, 0);
 
     // 2.3 detail界面
     GtkWidget *detail_box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 5); // task界面用上下两个box，上面box是按钮，下面box是表格
@@ -264,20 +264,22 @@ static void activate(GtkApplication *app, gpointer user_data) {
     // GtkWidget *area1 = gtk_label_new("任务");
     // GtkWidget *area2 = gtk_label_new("今日/本周");
     // GtkWidget *area3 = gtk_label_new("执行");
-    GtkWidget *area4 = gtk_label_new("日历");
+    GtkWidget *area4 = gtk_label_new("calendar");
 
     // 将区域添加进paned中
     gtk_paned_add1(GTK_PANED(top_paned), task_box); // 将task表格放进上方水平分隔左侧
-    gtk_paned_add2(GTK_PANED(top_paned), today_box); // 将放进上方水平分隔右侧
-    gtk_paned_add1(GTK_PANED(bottom_paned), detail_box); // 将放进下方水平分隔左侧
+    gtk_paned_add2(GTK_PANED(top_paned), detail_box); // 将放进上方水平分隔右侧
+    gtk_paned_add1(GTK_PANED(bottom_paned), today_box); // 将放进下方水平分隔左侧
     gtk_paned_add2(GTK_PANED(bottom_paned), area4); // 将放进下方水平分隔右侧
     gtk_paned_add1(GTK_PANED(v_paned), top_paned); // 将上面的水平分隔添加到垂直分隔
     gtk_paned_add2(GTK_PANED(v_paned), bottom_paned); // 将下面的水平分隔添加到垂直分隔
 
     // 初始化paned大小
+    int left_width = (int)((double)width * 0.55);
+    int right_width = width - left_width;
     gtk_paned_set_position(GTK_PANED(v_paned), height/2);  // 设置垂直分隔控件，均分上下区域
-    gtk_paned_set_position(GTK_PANED(top_paned), width/2); // 设置水平分隔控件，均分左右区域
-    gtk_paned_set_position(GTK_PANED(bottom_paned), width/2); // 设置水平分隔控件，均分左右区域
+    gtk_paned_set_position(GTK_PANED(top_paned), left_width); // 设置水平分隔控件，均分左右区域
+    gtk_paned_set_position(GTK_PANED(bottom_paned), left_width); // 设置水平分隔控件，均分左右区域
 
     gtk_box_pack_start(GTK_BOX(main_box), v_paned, TRUE, TRUE, 0); // 将垂直分隔放进主box
     gtk_container_add(GTK_CONTAINER(window), main_box); // 将主box放进主窗口

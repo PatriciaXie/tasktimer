@@ -812,7 +812,172 @@ void on_today_today_button_clicked(GtkWidget *widget, gpointer user_data){
 }
 
 void on_today_week_button_clicked(GtkWidget *widget, gpointer user_data){
-    waiting_debug(widget, user_data);
+    TTimerData *data = (TTimerData *)user_data;
+    GtkListStore *list_store = data->list_store_today;
+    TTimerSetting *setting = data->setting;
+    TTimerTask **all_task = data->all_task;
+    GtkWidget *treeview = data->treeview_today;
+    GtkWidget *main_window = data->window;
+
+    gtk_list_store_clear(data->list_store_today);
+
+    time_t cur_time;
+    time(&cur_time);
+    time_t start_time = (int)cur_time / (3600 * 24) * (3600 * 24) - 8*3600; // 当天的北京时间0点0时
+
+    // 获得此时所在的周的0时0分
+    struct tm *cur_tm_info = localtime(&start_time); // 当天的是星期几
+    int weekday = cur_tm_info->tm_wday - 1; // 周一则weekday = 0, 周日=6
+    weekday = weekday == -1 ? 6 : weekday;
+    start_time = start_time - weekday * 3600 * 24;
+    time_t end_time = start_time + 7 * 3600 * 24 - 1;
+
+    // 计算本周做过的任务数
+    int num_task = 0; // 被选中的task数
+    for (int i = 0; i < setting->num_task; i++) {
+        bool task_not_add = true;
+        TTimerTask *task = all_task[i];
+        for (int j = 0; j < task->num_execution; j++) {
+            time_t exc_start_time = task->execution_start_time[j];
+            time_t exc_end_time = task->execution_end_time[j];
+            if (exc_start_time >= start_time && exc_end_time <= end_time) {
+                if (task_not_add) {
+                    num_task++;
+                    task_not_add = false;
+                }
+            }
+        }
+    }
+
+    int idx_task[num_task]; // 被选中的task，数组长度=sum(num_execution)
+    int spent_task[num_task]; // 任务的执行时间
+    int time_task[num_task];
+    int sum_duration = 0;
+    int k = 0;
+    time_t start_times[num_task], end_times[num_task];
+    for (int i = 0; i < setting->num_task; i++) {
+        TTimerTask *task = all_task[i];
+        int task_duration = 0;
+        time_t start_time0 = end_time;
+        time_t end_time0 = start_time;
+        int num_execution = 0;
+        for (int j = 0; j < task->num_execution; j++) {
+            time_t exc_start_time = task->execution_start_time[j];
+            time_t exc_end_time = task->execution_end_time[j];
+            if (exc_start_time >= start_time && exc_end_time <= end_time) {
+                if (exc_start_time < start_time0) {
+                    start_time0 = exc_start_time;
+                }
+                if (exc_end_time > end_time0) {
+                    end_time0 = exc_end_time;
+                }
+                task_duration += task->execution_duration[j];
+                sum_duration += + task->execution_duration[j];
+                num_execution++;
+            }
+        }
+        if (task_duration > 0) {
+            idx_task[k] = i;
+            time_task[k] = num_execution;
+            start_times[k] = start_time0;
+            end_times[k] = end_time0;
+            spent_task[k] = task_duration;
+            k++;
+        }
+    }
+
+    if (num_task == 0) {
+        printf("No task found.\n");
+        return;
+    }
+
+    int short_to_long_idx[num_task];
+    for (int i = 0; i < num_task; i++) {
+        short_to_long_idx[i] = i;
+    }
+    // early_to_late_idx，idx_task、idx_execution时间从小到大的idx
+    sort_time2(spent_task, short_to_long_idx, num_task);
+
+    // 本周用时
+    for (int i = 0; i < num_task; i++) {
+        int idx = short_to_long_idx[num_task - 1 - i];
+        int task_idx = idx_task[idx];
+        TTimerTask *task = all_task[task_idx];
+
+        time_t start_time1 = start_times[idx];
+        struct tm *start_tm_info = localtime(&start_time1);
+        int start_weekday = start_tm_info->tm_wday;
+        char *start_str_week;
+        switch (start_weekday) {
+            case 0:  start_str_week = "Sun"; break;
+            case 1:  start_str_week = "Mon"; break;
+            case 2:  start_str_week = "Tue"; break;
+            case 3:  start_str_week = "Wed"; break;
+            case 4:  start_str_week = "Thu"; break;
+            case 5:  start_str_week = "Fri"; break;
+            case 6:  start_str_week = "Sat"; break;
+            default: start_str_week = "";
+        }
+
+        char *end_str_week;
+        time_t end_time1 = end_times[idx];
+        struct tm *end_tm_info = localtime(&end_time1);
+        int end_weekday = end_tm_info->tm_wday;
+        switch (end_weekday) {
+            case 0:  end_str_week = "Sun"; break;
+            case 1:  end_str_week = "Mon"; break;
+            case 2:  end_str_week = "Tue"; break;
+            case 3:  end_str_week = "Wed"; break;
+            case 4:  end_str_week = "Thu"; break;
+            case 5:  end_str_week = "Fri"; break;
+            case 6:  end_str_week = "Sat"; break;
+            default: end_str_week = "";
+        }
+
+        char str_start_time[80];
+        char str_end_time[80];
+        strftime(str_start_time, 80, "%H:%M", localtime(&start_times[idx]));
+        strftime(str_end_time, 80, "%H:%M", localtime(&end_times[idx]));
+
+        char str_start_time1[80];
+        char str_end_time1[80];
+        sprintf(str_start_time1, "%s %s", start_str_week, str_start_time);
+        sprintf(str_end_time1, "%s %s", end_str_week, str_end_time);
+
+        char note_buffer[100];
+        int hour = spent_task[idx] / (3600);
+        int minute = (spent_task[idx] - hour * 3600) / 60;
+        end_weekday = end_weekday == 0 ? 7 : end_weekday;
+        start_weekday = start_weekday == 0 ? 7 : start_weekday;
+        sprintf(note_buffer, "%dh%dm (%d time in %d day)", hour, minute, time_task[idx], end_weekday-start_weekday+1);
+        int week = cur_tm_info->tm_yday / 7 + 1;
+        char week_buffer[20];
+        sprintf(week_buffer, "%d", week);
+        // 向 ListStore 中添加新的任务
+        GtkTreeIter iter;
+        gtk_list_store_append(list_store, &iter);
+        gtk_list_store_set(list_store, &iter,
+        4, task->id,
+        3, spent_task[idx] / 60,
+        0, week_buffer,
+        1, str_start_time1,
+        2, str_end_time1,
+        5, task->name,
+        7, note_buffer,
+        6, time_task[idx], -1);
+    }
+    GtkTreeIter iter;
+    gtk_list_store_append(list_store, &iter);
+    char buffer[20];
+    int hour = sum_duration / (3600);
+    int minute = (sum_duration - hour * 3600) / 60;
+    printf("%d task (%dh%dm): \n", num_task, hour, minute);
+    sprintf(buffer, "%dh%dm", hour, minute);
+    char buffer2[20];
+    sprintf(buffer2, "%d task", num_task);
+    gtk_list_store_set(list_store, &iter,
+    1, buffer,
+    0, buffer2, -1);
 }
 
 void on_detail_task_button_clicked(GtkWidget *widget, gpointer user_data) {

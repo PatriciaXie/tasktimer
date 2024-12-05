@@ -72,4 +72,5 @@ int stop_task(TTimerSetting *setting, TTimerTask *task);
 int print_doing(const TTimerSetting *setting, const TTimerTask *task);
 
 void sort_time(const time_t *time_list, int *idxes, const int num_idx);
+void sort_time2(int *time_list, int *idxes, const int num_idx);
 #endif
