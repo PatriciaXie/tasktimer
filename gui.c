@@ -93,9 +93,75 @@ void show_tasks(gpointer user_data, GtkListStore *list_store) {
 
 
 }
+
+void refresh_treeview(gpointer user_data) {
+    TTimerData *data = (TTimerData *)user_data;
+    GtkListStore *list_store = data->list_store;
+    GtkListStore *list_store_archive = data->list_store_archive;
+    TTimerSetting *setting = data->setting;
+    TTimerTask **all_task = data->all_task;
+
+    gtk_list_store_clear(data->list_store);
+    gtk_list_store_clear(data->list_store_archive);
+
+    for (int i = 0; i < setting->num_task; i++) {
+        TTimerTask *task = all_task[i];
+        // 向 ListStore 中添加新的任务
+        GtkTreeIter iter;
+        GtkTreeIter iter_archive;
+        if (task->state == 0) {
+            gtk_list_store_append(list_store, &iter);
+        } else {
+            gtk_list_store_append(list_store_archive, &iter_archive);
+        }
+        int spent_second = 0;
+        for (int j = 0; j < task->num_execution; j++) {
+            spent_second = spent_second + task->execution_duration[j];
+        }
+        char *state;
+        switch (task->state) {
+            case 0: state = "to do"; break;
+            case 1: state = "finish"; break;
+            case 2: state = "archived"; break;
+            case 3: state = "retard"; break;
+            case 4: state = "=="; break;
+            default: state = "unknown"; break;
+        }
+
+        char buffer2[20];
+        int hour = spent_second / (3600);
+        int minute = (spent_second - hour * 3600) / 60;
+        sprintf(buffer2, "%dh%dm", hour, minute);
+
+        if (task->state == 0) {
+            gtk_list_store_set(list_store, &iter,
+            0, task->id,
+            1, state,
+            2, setting->name_category[task->category],
+            3, task->name,
+            4, task->importance_degree,
+            5, task->emergency_degree,
+            6, task->plan_progress,
+            7, task->num_execution,
+            8, buffer2, -1);
+        } else {
+            gtk_list_store_set(list_store_archive, &iter_archive,
+            0, task->id,
+            1, state,
+            2, setting->name_category[task->category],
+            3, task->name,
+            4, task->importance_degree,
+            5, task->emergency_degree,
+            6, task->plan_progress,
+            7, task->num_execution,
+            8, buffer2, -1);
+        }
+    }
+}
 void load_task(gpointer user_data) {
     TTimerData *data = (TTimerData *)user_data;
     GtkListStore *list_store = data->list_store;
+    GtkListStore *list_store_archive = data->list_store_archive;
     TTimerSetting *setting = data->setting;
     TTimerTask **all_task = data->all_task;
     GtkWidget *main_window = data->window;
@@ -114,46 +180,61 @@ void load_task(gpointer user_data) {
             }
         }
     }
+    refresh_treeview(user_data);
 
-    for (int i = 0; i < setting->num_task; i++) {
-        TTimerTask *task = all_task[i];
-        // 向 ListStore 中添加新的任务
-        GtkTreeIter iter;
-
-        if (task->state == 2) {
-            continue;
-        }
-        gtk_list_store_append(list_store, &iter);
-        int spent_second = 0;
-        for (int j = 0; j < task->num_execution; j++) {
-            spent_second = spent_second + task->execution_duration[j];
-        }
-        char *state;
-        switch (task->state) {
-            case 0: state = "to do"; break;
-            case 1: state = "finish"; break;
-            case 2: state = "archived"; break;
-            case 3: state = "deleted"; break;
-            case 4: state = "=="; break;
-            default: state = "unknown"; break;
-        }
-
-        char buffer2[20];
-        int hour = spent_second / (3600);
-        int minute = (spent_second - hour * 3600) / 60;
-        sprintf(buffer2, "%dh%dm", hour, minute);
-
-        gtk_list_store_set(list_store, &iter,
-            0, task->id,
-            1, state,
-            2, setting->name_category[task->category],
-            3, task->name,
-            4, task->importance_degree,
-            5, task->emergency_degree,
-            6, task->plan_progress,
-            7, task->num_execution,
-            8, buffer2, -1);
-    }
+    // for (int i = 0; i < setting->num_task; i++) {
+    //     TTimerTask *task = all_task[i];
+    //     // 向 ListStore 中添加新的任务
+    //     GtkTreeIter iter;
+    //     GtkTreeIter iter_archive;
+    //     if (task->state == 0) {
+    //         gtk_list_store_append(list_store, &iter);
+    //     } else {
+    //         gtk_list_store_append(list_store_archive, &iter_archive);
+    //     }
+    //     int spent_second = 0;
+    //     for (int j = 0; j < task->num_execution; j++) {
+    //         spent_second = spent_second + task->execution_duration[j];
+    //     }
+    //     char *state;
+    //     switch (task->state) {
+    //         case 0: state = "to do"; break;
+    //         case 1: state = "finish"; break;
+    //         case 2: state = "archived"; break;
+    //         case 3: state = "retard"; break;
+    //         case 4: state = "=="; break;
+    //         default: state = "unknown"; break;
+    //     }
+    //
+    //     char buffer2[20];
+    //     int hour = spent_second / (3600);
+    //     int minute = (spent_second - hour * 3600) / 60;
+    //     sprintf(buffer2, "%dh%dm", hour, minute);
+    //
+    //     if (task->state == 0) {
+    //         gtk_list_store_set(list_store, &iter,
+    //         0, task->id,
+    //         1, state,
+    //         2, setting->name_category[task->category],
+    //         3, task->name,
+    //         4, task->importance_degree,
+    //         5, task->emergency_degree,
+    //         6, task->plan_progress,
+    //         7, task->num_execution,
+    //         8, buffer2, -1);
+    //     } else {
+    //         gtk_list_store_set(list_store_archive, &iter_archive,
+    //         0, task->id,
+    //         1, state,
+    //         2, setting->name_category[task->category],
+    //         3, task->name,
+    //         4, task->importance_degree,
+    //         5, task->emergency_degree,
+    //         6, task->plan_progress,
+    //         7, task->num_execution,
+    //         8, buffer2, -1);
+    //     }
+    // }
 }
 
 void on_add_task_button_clicked(GtkWidget *widget, gpointer user_data) {
@@ -177,7 +258,7 @@ void on_add_task_button_clicked(GtkWidget *widget, gpointer user_data) {
         case 0: state = "to do"; break;
         case 1: state = "finish"; break;
         case 2: state = "archived"; break;
-        case 3: state = "deleted"; break;
+        case 3: state = "retard"; break;
         case 4: state = "=="; break;
         default: state = "unknown"; break;
     }
@@ -330,7 +411,7 @@ void revise_task(GtkWidget *widget, gpointer user_data) {
     // 创建 state 单选按钮，三个Toggle按钮
     GtkWidget *state_button0 = gtk_toggle_button_new_with_label("to do");
     GtkWidget *state_button1 = gtk_toggle_button_new_with_label("archived");
-    GtkWidget *state_button2 = gtk_toggle_button_new_with_label("invalid");
+    GtkWidget *state_button2 = gtk_toggle_button_new_with_label("retard");
     // 设置初始按钮状态
     switch (task->state) {
         case 0: {
@@ -465,35 +546,37 @@ void on_edit_task_button_clicked(GtkWidget *widget, gpointer user_data) {
         int idx = get_idx(all_task, setting->num_task, setting->selected_id);
         TTimerTask *task = select_task_idx(setting, all_task, idx);
         // 刷新列表
-        char *state;
-        switch (task->state) {
-            case 0: state = "to do"; break;
-            case 1: state = "finish"; break;
-            case 2: state = "archived"; break;
-            case 3: state = "deleted"; break;
-            case 4: state = "=="; break;
-            default: state = "unknown"; break;
-        }
+        refresh_treeview(data);
 
-        int spent_second = 0;
-        for (int j = 0; j < task->num_execution; j++) {
-            spent_second = spent_second + task->execution_duration[j];
-        }
-        char buffer2[20];
-        int hour = spent_second / (3600);
-        int minute = (spent_second - hour * 3600) / 60;
-        sprintf(buffer2, "%dh%dm", hour, minute);
-
-        gtk_list_store_set(list_store, &iter,
-            0, task->id,
-            1, state,
-            2, setting->name_category[task->category],
-            3, task->name,
-            4, task->importance_degree,
-            5, task->emergency_degree,
-            6, task->plan_progress,
-            7, task->num_execution,
-            8, buffer2, -1);
+        // char *state;
+        // switch (task->state) {
+        //     case 0: state = "to do"; break;
+        //     case 1: state = "finish"; break;
+        //     case 2: state = "archived"; break;
+        //     case 3: state = "retard"; break;
+        //     case 4: state = "=="; break;
+        //     default: state = "unknown"; break;
+        // }
+        //
+        // int spent_second = 0;
+        // for (int j = 0; j < task->num_execution; j++) {
+        //     spent_second = spent_second + task->execution_duration[j];
+        // }
+        // char buffer2[20];
+        // int hour = spent_second / (3600);
+        // int minute = (spent_second - hour * 3600) / 60;
+        // sprintf(buffer2, "%dh%dm", hour, minute);
+        //
+        // gtk_list_store_set(list_store, &iter,
+        //     0, task->id,
+        //     1, state,
+        //     2, setting->name_category[task->category],
+        //     3, task->name,
+        //     4, task->importance_degree,
+        //     5, task->emergency_degree,
+        //     6, task->plan_progress,
+        //     7, task->num_execution,
+        //     8, buffer2, -1);
 
         setting->change_unsaved = true;
         char buffer[100];
@@ -572,7 +655,7 @@ void on_start_task_button_clicked(GtkWidget *widget, gpointer user_data){
                 case 0: state = "to do"; break;
                 case 1: state = "finish"; break;
                 case 2: state = "archived"; break;
-                case 3: state = "deleted"; break;
+                case 3: state = "retard"; break;
                 case 4: state = "=="; break;
                 default: state = "unknown"; break;
             }
@@ -657,7 +740,7 @@ void on_stop_task_button_clicked(GtkWidget *widget, gpointer user_data) {
                     case 0: state = "to do"; break;
                     case 1: state = "finish"; break;
                     case 2: state = "archived"; break;
-                    case 3: state = "deleted"; break;
+                    case 3: state = "retard"; break;
                     case 4: state = "=="; break;
                     default: state = "unknown"; break;
                 }
@@ -705,9 +788,18 @@ void on_today_today_button_clicked(GtkWidget *widget, gpointer user_data){
     gtk_list_store_clear(data->list_store_today);
 
     time_t cur_time;
-    time(&cur_time);
+    time(&cur_time); // 获取当前时间
+    if (data->detail_time_flag) {
+        cur_time = data->detail_start_time; // 获取日历时间
+    } else {
+        time(&cur_time); // 获取当前时间
+    }
+    data->detail_time_flag = false;
     time_t start_time = (int)cur_time / (3600 * 24) * (3600 * 24) - 8*3600; // 世界时
     time_t end_time = start_time + 3600 * 24 - 1;
+
+    char tmp_time[100];
+    strftime(tmp_time, 80, "%y-%m-%d %H:%M:%S", localtime(&start_time));
 
     // 计算time_interval的idx
     int num_task = 0; // 被选中的task数
@@ -823,6 +915,14 @@ void on_today_week_button_clicked(GtkWidget *widget, gpointer user_data){
 
     time_t cur_time;
     time(&cur_time);
+
+    if (data->detail_week_flag) {
+        cur_time = data->detail_start_time; // 获取日历时间
+    } else {
+        time(&cur_time); // 获取当前时间
+    }
+    data->detail_week_flag = false;
+
     time_t start_time = (int)cur_time / (3600 * 24) * (3600 * 24) - 8*3600; // 当天的北京时间0点0时
 
     // 获得此时所在的周的0时0分
@@ -1204,6 +1304,134 @@ void test_signal(GtkWidget *widget, gpointer user_data) {
     printf("get signal\n");
 }
 
+time_t str2time(const char* str) {
+    struct tm tm_start;
+    int start_num =  sscanf(str, "%4d-%2d-%2dT%2d:%2d:%2d",
+        &tm_start.tm_year, &tm_start.tm_mon, &tm_start.tm_mday,
+        &tm_start.tm_hour, &tm_start.tm_min, &tm_start.tm_sec);
+    tm_start.tm_year -= 1900;
+    // tm_mon是月份，从0开始，所以要减去1
+    tm_start.tm_mon -= 1;
+    // 填写tm_wday、tm_yday，这些通常可以忽略，由mktime填充
+    tm_start.tm_isdst = -1;  // 由系统决定是否使用夏令时
+
+    // 将结构体tm转换为time_t
+    time_t time = mktime(&tm_start);
+    return time;
+}
+
+/*
+ * 单击日历统计天
+ */
+void on_detail_start_calendar_selected(GtkCalendar *calendar, gpointer user_data) {
+    guint year, month, day;
+    gtk_calendar_get_date(calendar, &year, &month, &day);
+
+    TTimerData *data = (TTimerData *)user_data;
+    char str[50];
+    sprintf(str, "%04d-%02d-%02dT%02d:%02d:%02d", year, month + 1, day+1, 0, 0, 0);
+    data->detail_start_time = str2time(str);
+
+
+    // 记住 month 从 0 开始
+    g_print("Selected date: %04d-%02d-%02d\n", year, month + 1, day);
+    data->detail_time_flag = true;
+    on_today_today_button_clicked(NULL, user_data);
+}
+
+/*
+ * 双击日历统计周
+ */
+void on_detail_week_calendar_selected(GtkCalendar *calendar, gpointer user_data) {
+    guint year, month, day;
+    gtk_calendar_get_date(calendar, &year, &month, &day);
+
+    TTimerData *data = (TTimerData *)user_data;
+    char str[50];
+    sprintf(str, "%04d-%02d-%02dT%02d:%02d:%02d", year, month + 1, day+1, 0, 0, 0);
+    data->detail_start_time = str2time(str);
+
+
+    // 记住 month 从 0 开始
+    g_print("Selected date: %04d-%02d-%02d\n", year, month + 1, day);
+    data->detail_time_flag = false;
+    data->detail_week_flag = true;
+    on_today_week_button_clicked(NULL, user_data);
+}
+
+
+gboolean  on_task_treeview_right_click(GtkWidget *widget, GdkEventButton *event, gpointer user_data) {
+    // 右键点击事件
+    if (event->button == GDK_BUTTON_SECONDARY) {
+        TTimerData *data = (TTimerData *)user_data;
+
+        TTimerSetting *setting = data->setting;
+        TTimerTask **all_task = data->all_task;
+
+        GtkListStore *list_store = data->list_store;
+        GtkWidget *treeview = data->treeview;
+
+        GtkTreeIter iter;
+        GtkTreeModel *model;
+        GtkTreeSelection *selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(treeview)); // 获取当前选中的行
+
+        if (gtk_tree_selection_get_selected(selection, &model, &iter)) {
+            gint id;
+            gtk_tree_model_get(model, &iter, 0, &id, -1);
+
+            setting->selected_id = id;
+            const int idx = get_idx(all_task, setting->num_task, setting->selected_id);
+            TTimerTask *task = select_task_idx(setting, all_task, idx);
+            task->state = 3;
+            setting->change_unsaved = true;
+            char app_buffer[100];
+            sprintf(app_buffer, "*%s v%s", setting->app_name, setting->version);
+            gtk_window_set_title(GTK_WINDOW(data->window), app_buffer);
+            // 刷新task和archive列表
+            refresh_treeview(user_data);
+        }
+        return FALSE; // 右键后仍可以显示左键点击
+    }
+    return FALSE; // 右键后仍可以显示左键点击
+}
+
+gboolean  on_archive_treeview_right_click(GtkWidget *widget, GdkEventButton *event, gpointer user_data) {
+    // 右键点击事件
+    if (event->button == GDK_BUTTON_SECONDARY) {
+        TTimerData *data = (TTimerData *)user_data;
+
+        TTimerSetting *setting = data->setting;
+        TTimerTask **all_task = data->all_task;
+
+        GtkListStore *list_store = data->list_store;
+        GtkWidget *treeview = data->treeview;
+
+        GtkListStore *list_store_archive = data->list_store_archive;
+        GtkWidget *treeview_archive = data->treeview_archive;
+
+        GtkTreeIter iter;
+        GtkTreeModel *model;
+        GtkTreeSelection *selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(treeview_archive)); // 获取当前选中的行
+
+        if (gtk_tree_selection_get_selected(selection, &model, &iter)) {
+            gint id;
+            gtk_tree_model_get(model, &iter, 0, &id, -1);
+
+            setting->selected_id = id;
+            const int idx = get_idx(all_task, setting->num_task, setting->selected_id);
+            TTimerTask *task = select_task_idx(setting, all_task, idx);
+            task->state = 0;
+            setting->change_unsaved = true;
+            char app_buffer[100];
+            sprintf(app_buffer, "*%s v%s", setting->app_name, setting->version);
+            gtk_window_set_title(GTK_WINDOW(data->window), app_buffer);
+            // 刷新task和archive列表
+            refresh_treeview(user_data);
+        }
+        return FALSE; // 右键后仍可以显示左键点击
+    }
+    return FALSE; // 右键后仍可以显示左键点击
+}
 
 // int on_close_event(GtkWidget *widget, gpointer user_data) {
 //     TTimerData *data = (TTimerData *)user_data;

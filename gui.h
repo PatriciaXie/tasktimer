@@ -10,9 +10,16 @@ typedef struct {
     GtkListStore *list_store;
     GtkListStore *list_store_today;
     GtkListStore *list_store_detail;
+    GtkListStore *list_store_archive;
+
     GtkWidget *treeview;
     GtkWidget *treeview_today;
     GtkWidget *treeview_detail;
+    GtkWidget *treeview_archive;
+
+    time_t detail_start_time;
+    bool detail_time_flag;
+    bool detail_week_flag;
 } TTimerData;
 
 void load_task(gpointer user_data);
@@ -36,6 +43,11 @@ void on_detail_revise_button_clicked(GtkWidget *widget, gpointer user_data);
 void on_detail_delete_button_clicked(GtkWidget *widget, gpointer user_data);
 
 void test_signal(GtkWidget *widget, gpointer user_data);
+
+void on_detail_start_calendar_selected(GtkCalendar *calendar, gpointer user_data);
+void on_detail_week_calendar_selected(GtkCalendar *calendar, gpointer user_data);
+gboolean  on_task_treeview_right_click(GtkWidget *widget, GdkEventButton *event, gpointer user_data);
+gboolean  on_archive_treeview_right_click(GtkWidget *widget, GdkEventButton *event, gpointer user_data);
 
 // int on_close_event(GtkWidget *widget, gpointer user_data);
 
