@@ -109,10 +109,14 @@ void refresh_treeview(gpointer user_data) {
         // 向 ListStore 中添加新的任务
         GtkTreeIter iter;
         GtkTreeIter iter_archive;
-        if (task->state == 0) {
+        if (task->state == 0 || task->state == 4) {
             gtk_list_store_append(list_store, &iter);
         } else {
-            gtk_list_store_append(list_store_archive, &iter_archive);
+            if (task->state == 3) {
+                gtk_list_store_append(list_store_archive, &iter_archive);
+            } else {
+                continue;
+            }
         }
         int spent_second = 0;
         for (int j = 0; j < task->num_execution; j++) {
@@ -133,7 +137,7 @@ void refresh_treeview(gpointer user_data) {
         int minute = (spent_second - hour * 3600) / 60;
         sprintf(buffer2, "%dh%dm", hour, minute);
 
-        if (task->state == 0) {
+        if (task->state == 0 || task->state == 4) {
             gtk_list_store_set(list_store, &iter,
             0, task->id,
             1, state,
@@ -144,7 +148,7 @@ void refresh_treeview(gpointer user_data) {
             6, task->plan_progress,
             7, task->num_execution,
             8, buffer2, -1);
-        } else {
+        } if (task->state == 3) {
             gtk_list_store_set(list_store_archive, &iter_archive,
             0, task->id,
             1, state,
@@ -155,6 +159,8 @@ void refresh_treeview(gpointer user_data) {
             6, task->plan_progress,
             7, task->num_execution,
             8, buffer2, -1);
+        } else {
+            continue;
         }
     }
 }
