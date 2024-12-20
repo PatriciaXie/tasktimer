@@ -48,7 +48,8 @@ void on_detail_start_calendar_selected(GtkCalendar *calendar, gpointer user_data
 void on_detail_week_calendar_selected(GtkCalendar *calendar, gpointer user_data);
 gboolean  on_task_treeview_right_click(GtkWidget *widget, GdkEventButton *event, gpointer user_data);
 gboolean  on_archive_treeview_right_click(GtkWidget *widget, GdkEventButton *event, gpointer user_data);
-
+void cell_data_func(GtkTreeViewColumn *col, GtkCellRenderer *cell, GtkTreeModel *model, GtkTreeIter *iter, gpointer user_data);
+void cell_data_func2(GtkTreeViewColumn *col, GtkCellRenderer *cell, GtkTreeModel *model, GtkTreeIter *iter, gpointer user_data);
 // gint sort_func(GtkTreeModel *model, GtkTreeIter *a, GtkTreeIter *b, gpointer user_data);
 // int on_close_event(GtkWidget *widget, gpointer user_data);
 

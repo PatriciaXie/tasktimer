@@ -114,6 +114,7 @@ static void activate(GtkApplication *app, gpointer user_data0) {
     renderer = gtk_cell_renderer_text_new();
     column = gtk_tree_view_column_new_with_attributes("progress", renderer, "text", 6, NULL);
     gtk_tree_view_append_column(GTK_TREE_VIEW(treeview), column);
+    gtk_tree_view_column_set_cell_data_func(column, renderer, cell_data_func, NULL, NULL); // 完成的话就是灰色背景
     // 7添加 "times" 列
     renderer = gtk_cell_renderer_text_new();
     column = gtk_tree_view_column_new_with_attributes("times", renderer, "text", 7, NULL);
@@ -300,6 +301,7 @@ static void activate(GtkApplication *app, gpointer user_data0) {
     renderer_archive = gtk_cell_renderer_text_new(); // 创建列并设置渲染器
     column_archive = gtk_tree_view_column_new_with_attributes("class", renderer_archive, "text", 2, NULL);
     gtk_tree_view_append_column(GTK_TREE_VIEW(treeview_archive), column_archive);
+    gtk_tree_view_column_set_cell_data_func(column_archive, renderer_archive, cell_data_func2, NULL, NULL); // 完成的话就是灰色背景
     // 3添加 "task" 列
     renderer_archive = gtk_cell_renderer_text_new();
     column_archive = gtk_tree_view_column_new_with_attributes("task", renderer_archive, "text", 3, NULL);

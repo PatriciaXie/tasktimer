@@ -741,6 +741,9 @@ void on_stop_task_button_clicked(GtkWidget *widget, gpointer user_data) {
                 printf("note: %s\n", gtk_entry_get_text(GTK_ENTRY(note_entry)));
                 task->execution_note[task->num_execution-1] = (char *) malloc(300*sizeof(char));
                 strcpy(task->execution_note[task->num_execution-1], gtk_entry_get_text(GTK_ENTRY(note_entry)));
+                // if (task->plan_progress == 100) {
+                //     g_object_set(data->renderer, "background", "grey", NULL);
+                // }
                 char *state;
                 switch (task->state) {
                     case 0: state = "to do"; break;
@@ -1365,7 +1368,6 @@ void on_detail_week_calendar_selected(GtkCalendar *calendar, gpointer user_data)
     on_today_week_button_clicked(NULL, user_data);
 }
 
-
 gboolean  on_task_treeview_right_click(GtkWidget *widget, GdkEventButton *event, gpointer user_data) {
     // 右键点击事件
     if (event->button == GDK_BUTTON_SECONDARY) {
@@ -1427,6 +1429,7 @@ gboolean  on_archive_treeview_right_click(GtkWidget *widget, GdkEventButton *eve
             const int idx = get_idx(all_task, setting->num_task, setting->selected_id);
             TTimerTask *task = select_task_idx(setting, all_task, idx);
             task->state = 0;
+            task->plan_progress = 0;
             setting->change_unsaved = true;
             char app_buffer[100];
             sprintf(app_buffer, "*%s v%s", setting->app_name, setting->version);
@@ -1472,3 +1475,38 @@ gboolean  on_archive_treeview_right_click(GtkWidget *widget, GdkEventButton *eve
 //     // 返回 FALSE 以允许窗口关闭
 //     return FALSE;
 // }
+
+void cell_data_func(GtkTreeViewColumn *col, GtkCellRenderer *cell, GtkTreeModel *model, GtkTreeIter *iter, gpointer user_data) {
+    gint text;
+    gint value;
+
+    // 获取当前行的数据
+    gtk_tree_model_get(model, iter, 0, &text, 6, &value, -1);
+
+    // 设置单元格背景色
+    if (value >= 100) {
+        // 如果第二列的值大于20，设置背景色为红色
+        g_object_set(cell, "background", "grey", NULL);
+    } else {
+        // 否则设置背景色为绿色
+        g_object_set(cell, "background", "white", NULL);
+    }
+}
+
+void cell_data_func2(GtkTreeViewColumn *col, GtkCellRenderer *cell, GtkTreeModel *model, GtkTreeIter *iter, gpointer user_data) {
+    gint text;
+    gchar *value;
+
+    // 获取当前行的数据
+    gtk_tree_model_get(model, iter, 0, &text, 2, &value, -1);
+
+    // 设置单元格背景色
+    if (strcmp(value, "周期") == 0) {
+        // 如果第二列的值大于20，设置背景色为红色
+        g_object_set(cell, "background", "grey", NULL);
+    } else {
+        // 否则设置背景色为绿色
+        g_object_set(cell, "background", "white", NULL);
+    }
+    g_free(value);
+}
