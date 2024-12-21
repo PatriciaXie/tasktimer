@@ -177,6 +177,7 @@ static void activate(GtkApplication *app, gpointer user_data0) {
     gtk_tree_view_append_column(GTK_TREE_VIEW(treeview_today), column);// 1用时(%d)
     renderer = gtk_cell_renderer_text_new(); // 创建列并设置渲染器
     column = gtk_tree_view_column_new_with_attributes("spent", renderer, "text", 3, NULL);
+    g_object_set(renderer, "foreground", "red", NULL);
     gtk_tree_view_append_column(GTK_TREE_VIEW(treeview_today), column);
     // 0添加 "id" 列
     renderer = gtk_cell_renderer_text_new(); // 创建列并设置渲染器
