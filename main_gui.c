@@ -74,6 +74,7 @@ static void activate(GtkApplication *app, gpointer user_data0) {
 
     // 2. 主窗口界面
     GtkWidget *v_paned = gtk_paned_new(GTK_ORIENTATION_VERTICAL); // 创建垂直分隔控件
+    GtkWidget *v_paned4 = gtk_paned_new(GTK_ORIENTATION_HORIZONTAL); // 创建垂直分隔控件
     GtkWidget *top_paned = gtk_paned_new(GTK_ORIENTATION_HORIZONTAL); // 创建上部分水平分隔
     GtkWidget *bottom_paned = gtk_paned_new(GTK_ORIENTATION_HORIZONTAL); // 创建下部分水平分隔
 
@@ -130,6 +131,7 @@ static void activate(GtkApplication *app, gpointer user_data0) {
     gtk_container_add(GTK_CONTAINER(scrolled_window), treeview);
     gtk_box_pack_start(GTK_BOX(task_box), scrolled_window, TRUE, TRUE, 0);
     gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolled_window), GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
+    user_data->v_adjustment_task = gtk_scrolled_window_get_vadjustment(GTK_SCROLLED_WINDOW(scrolled_window));
 
     // 按钮box
     GtkWidget *task_button_box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 5);
@@ -274,18 +276,13 @@ static void activate(GtkApplication *app, gpointer user_data0) {
     gtk_box_pack_start(GTK_BOX(detail_box), detail_button_box, FALSE, FALSE, 0);
 
 
-    // 创建四个区域（标签作为占位符）
-    // GtkWidget *area1 = gtk_label_new("任务");
-    // GtkWidget *area2 = gtk_label_new("今日/本周");
-    // GtkWidget *area3 = gtk_label_new("执行");
-    GtkWidget *area4 = gtk_label_new("calendar");
-
     // 在右下角box中增加archive列表
-    GtkWidget *calendar_archive_box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 5);
-    gtk_box_pack_start(GTK_BOX(calendar_archive_box), start_calendar, FALSE, FALSE, 0);
+//    GtkWidget *calendar_today_box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 5);
+    gtk_box_pack_start(GTK_BOX(today_box), start_calendar, FALSE, FALSE, 0);
+
     // 表格box
     // 7 列，分别是0id(%d)、1状态(%s)、2类别(%s)、3任务名(%s)、4重要性(%d)、5紧急度(%d)、6进度(%d)、7次数(%d)，8已用时(%s)
-    GtkListStore *list_store_archive = gtk_list_store_new(9, G_TYPE_INT, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_INT, G_TYPE_INT, G_TYPE_INT, G_TYPE_INT, G_TYPE_STRING);
+    GtkListStore *list_store_archive = gtk_list_store_new(4, G_TYPE_INT, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING);
     user_data->list_store_archive = list_store_archive;
     GtkWidget *treeview_archive = gtk_tree_view_new_with_model(GTK_TREE_MODEL(list_store_archive)); // 创建 TreeView 控件，并与模型绑定
     user_data->treeview_archive = treeview_archive;
@@ -307,54 +304,79 @@ static void activate(GtkApplication *app, gpointer user_data0) {
     renderer_archive = gtk_cell_renderer_text_new();
     column_archive = gtk_tree_view_column_new_with_attributes("task", renderer_archive, "text", 3, NULL);
     gtk_tree_view_append_column(GTK_TREE_VIEW(treeview_archive), column_archive);
-    // 4添加 "importance" 列
-    renderer_archive = gtk_cell_renderer_text_new();
-    column_archive = gtk_tree_view_column_new_with_attributes("importance", renderer_archive, "text", 4, NULL);
-    gtk_tree_view_append_column(GTK_TREE_VIEW(treeview_archive), column_archive);
-    // 5添加 "emergency" 列
-    renderer_archive = gtk_cell_renderer_text_new();
-    column_archive = gtk_tree_view_column_new_with_attributes("emergency", renderer_archive, "text", 5, NULL);
-    gtk_tree_view_append_column(GTK_TREE_VIEW(treeview_archive), column_archive);
-    // 6添加 "progress" 列
-    renderer_archive = gtk_cell_renderer_text_new();
-    column_archive = gtk_tree_view_column_new_with_attributes("progress", renderer_archive, "text", 6, NULL);
-    gtk_tree_view_append_column(GTK_TREE_VIEW(treeview_archive), column_archive);
-    // 7添加 "times" 列
-    renderer_archive = gtk_cell_renderer_text_new();
-    column_archive = gtk_tree_view_column_new_with_attributes("times", renderer_archive, "text", 7, NULL);
-    gtk_tree_view_append_column(GTK_TREE_VIEW(treeview_archive), column_archive);
-    // 8添加 "spent" 列
-    renderer_archive = gtk_cell_renderer_text_new();
-    column_archive = gtk_tree_view_column_new_with_attributes("spent", renderer_archive, "text", 8, NULL);
-    gtk_tree_view_append_column(GTK_TREE_VIEW(treeview_archive), column_archive);
+
     gtk_tree_view_set_grid_lines(GTK_TREE_VIEW(treeview_archive), GTK_TREE_VIEW_GRID_LINES_BOTH);
 
     // 右键
     g_signal_connect(treeview_archive, "button-press-event", G_CALLBACK(on_archive_treeview_right_click), user_data);
-
-
+    
     GtkWidget *scrolled_window_archive = gtk_scrolled_window_new(NULL, NULL);
     gtk_container_add(GTK_CONTAINER(scrolled_window_archive), treeview_archive);
-    gtk_box_pack_start(GTK_BOX(calendar_archive_box), scrolled_window_archive, TRUE, TRUE, 0);
+    gtk_box_pack_start(GTK_BOX(today_box), scrolled_window_today, TRUE, TRUE, 0);
     gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolled_window_archive), GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
+    user_data->v_adjustment_archive = gtk_scrolled_window_get_vadjustment(GTK_SCROLLED_WINDOW(scrolled_window_archive));
 
+    // 在右下角box中增加archive列表
+//    GtkWidget *calendar_today_box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 5);
+    gtk_box_pack_start(GTK_BOX(today_box), start_calendar, FALSE, FALSE, 0);
 
+    // 表格box
+    // 7 列，分别是0id(%d)、1状态(%s)、2类别(%s)、3任务名(%s)、4重要性(%d)、5紧急度(%d)、6进度(%d)、7次数(%d)，8已用时(%s)
+    GtkListStore *list_store_archive2 = gtk_list_store_new(5, G_TYPE_INT, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING);
+    user_data->list_store_archive2 = list_store_archive2;
+    GtkWidget *treeview_archive2 = gtk_tree_view_new_with_model(GTK_TREE_MODEL(list_store_archive2)); // 创建 TreeView 控件，并与模型绑定
+    user_data->treeview_archive2 = treeview_archive2;
+
+    // 0添加 "id" 列
+    GtkCellRenderer *renderer_archive2 = gtk_cell_renderer_text_new(); // 创建列并设置渲染器
+    GtkTreeViewColumn *column_archive2 = gtk_tree_view_column_new_with_attributes("id", renderer_archive2, "text", 0, NULL);
+    gtk_tree_view_append_column(GTK_TREE_VIEW(treeview_archive2), column_archive2);
+    // 1添加 "state" 列
+    renderer_archive2 = gtk_cell_renderer_text_new(); // 创建列并设置渲染器
+    column_archive2 = gtk_tree_view_column_new_with_attributes("state", renderer_archive, "text", 1, NULL);
+    gtk_tree_view_append_column(GTK_TREE_VIEW(treeview_archive2), column_archive2);
+    // 2添加 "class" 列
+    renderer_archive2 = gtk_cell_renderer_text_new(); // 创建列并设置渲染器
+    column_archive2 = gtk_tree_view_column_new_with_attributes("class", renderer_archive, "text", 2, NULL);
+    gtk_tree_view_append_column(GTK_TREE_VIEW(treeview_archive2), column_archive2);
+    gtk_tree_view_column_set_cell_data_func(column_archive2, renderer_archive2, cell_data_func2, NULL, NULL); // 完成的话就是灰色背景
+    // 3添加 "task" 列
+    renderer_archive2 = gtk_cell_renderer_text_new();
+    column_archive2 = gtk_tree_view_column_new_with_attributes("task", renderer_archive2, "text", 3, NULL);
+    gtk_tree_view_append_column(GTK_TREE_VIEW(treeview_archive2), column_archive2);
+
+    renderer_archive2 = gtk_cell_renderer_text_new();
+    column_archive2 = gtk_tree_view_column_new_with_attributes("spent", renderer_archive2, "text", 4, NULL);
+    gtk_tree_view_append_column(GTK_TREE_VIEW(treeview_archive2), column_archive2);
+
+    gtk_tree_view_set_grid_lines(GTK_TREE_VIEW(treeview_archive2), GTK_TREE_VIEW_GRID_LINES_BOTH);
+
+    // 右键
+    g_signal_connect(treeview_archive2, "button-press-event", G_CALLBACK(on_archive_treeview2_right_click), user_data);
+
+    GtkWidget *scrolled_window_archive2 = gtk_scrolled_window_new(NULL, NULL);
+    gtk_container_add(GTK_CONTAINER(scrolled_window_archive2), treeview_archive2);
+    gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolled_window_archive2), GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
+    user_data->v_adjustment_archive2 = gtk_scrolled_window_get_vadjustment(GTK_SCROLLED_WINDOW(scrolled_window_archive2));
 
     // 将区域添加进paned中
-    gtk_paned_add1(GTK_PANED(top_paned), task_box); // 将task表格放进上方水平分隔左侧
-    gtk_paned_add2(GTK_PANED(top_paned), detail_box); // 将放进上方水平分隔右侧
-    gtk_paned_add1(GTK_PANED(bottom_paned), today_box); // 将放进下方水平分隔左侧
-    gtk_paned_add2(GTK_PANED(bottom_paned), calendar_archive_box); // 将放进下方水平分隔右侧
+    gtk_paned_add1(GTK_PANED(top_paned), task_box); // 将task视图  放进  上左
+    gtk_paned_add2(GTK_PANED(top_paned), detail_box); // 将detail视图 放进 上右
+    gtk_paned_add1(GTK_PANED(bottom_paned), today_box); // 将calendar_today 视图 放进 下左
+    gtk_paned_add2(GTK_PANED(bottom_paned), v_paned4); // 将 archive 视图 放进 下右1
     // gtk_paned_add2(GTK_PANED(bottom_paned), area4); // 将放进下方水平分隔右侧gtk_container_add(GTK_CONTAINER(window), area4);
     gtk_paned_add1(GTK_PANED(v_paned), top_paned); // 将上面的水平分隔添加到垂直分隔
     gtk_paned_add2(GTK_PANED(v_paned), bottom_paned); // 将下面的水平分隔添加到垂直分隔
 
+    gtk_paned_add1(GTK_PANED(v_paned4), scrolled_window_archive); // 将上面的水平分隔添加到垂直分隔
+    gtk_paned_add2(GTK_PANED(v_paned4), scrolled_window_archive2); // 将上面的水平分隔添加到垂直分隔
+
     // 初始化paned大小
     int left_width = (int)((double)width * 0.55);
-    int right_width = width - left_width;
     gtk_paned_set_position(GTK_PANED(v_paned), height/2);  // 设置垂直分隔控件，均分上下区域
     gtk_paned_set_position(GTK_PANED(top_paned), left_width); // 设置水平分隔控件，均分左右区域
     gtk_paned_set_position(GTK_PANED(bottom_paned), left_width); // 设置水平分隔控件，均分左右区域
+    gtk_paned_set_position(GTK_PANED(v_paned4), (width-left_width)*0.7); // 设置水平分隔控件，均分左右区域
 
     gtk_box_pack_start(GTK_BOX(main_box), v_paned, TRUE, TRUE, 0); // 将垂直分隔放进主box
     gtk_container_add(GTK_CONTAINER(window), main_box); // 将主box放进主窗口

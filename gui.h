@@ -11,11 +11,17 @@ typedef struct {
     GtkListStore *list_store_today;
     GtkListStore *list_store_detail;
     GtkListStore *list_store_archive;
+    GtkListStore *list_store_archive2;
 
     GtkWidget *treeview;
     GtkWidget *treeview_today;
     GtkWidget *treeview_detail;
     GtkWidget *treeview_archive;
+    GtkWidget *treeview_archive2;
+
+    GtkAdjustment *v_adjustment_task;
+    GtkAdjustment *v_adjustment_archive;
+    GtkAdjustment *v_adjustment_archive2;
 
     time_t detail_start_time;
     bool detail_time_flag;
@@ -38,7 +44,6 @@ void on_stop_task_button_clicked(GtkWidget *widget, gpointer user_data);
 
 void on_today_today_button_clicked(GtkWidget *widget, gpointer user_data);
 void on_today_week_button_clicked(GtkWidget *widget, gpointer user_data);
-
 void on_detail_revise_button_clicked(GtkWidget *widget, gpointer user_data);
 void on_detail_delete_button_clicked(GtkWidget *widget, gpointer user_data);
 
@@ -48,6 +53,7 @@ void on_detail_start_calendar_selected(GtkCalendar *calendar, gpointer user_data
 void on_detail_week_calendar_selected(GtkCalendar *calendar, gpointer user_data);
 gboolean  on_task_treeview_right_click(GtkWidget *widget, GdkEventButton *event, gpointer user_data);
 gboolean  on_archive_treeview_right_click(GtkWidget *widget, GdkEventButton *event, gpointer user_data);
+gboolean  on_archive_treeview2_right_click(GtkWidget *widget, GdkEventButton *event, gpointer user_data);
 void cell_data_func(GtkTreeViewColumn *col, GtkCellRenderer *cell, GtkTreeModel *model, GtkTreeIter *iter, gpointer user_data);
 void cell_data_func2(GtkTreeViewColumn *col, GtkCellRenderer *cell, GtkTreeModel *model, GtkTreeIter *iter, gpointer user_data);
 // gint sort_func(GtkTreeModel *model, GtkTreeIter *a, GtkTreeIter *b, gpointer user_data);
