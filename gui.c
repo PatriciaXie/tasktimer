@@ -154,10 +154,10 @@ void refresh_treeview(gpointer user_data) {
         if (task->state == 0 || task->state == 4) {
             gtk_list_store_append(list_store, &iter);
         } else {
-            if (task->state == 3) {
+            if (task->state == 3 && task->category == 4) {
                 gtk_list_store_append(list_store_archive, &iter_archive);
             } else {
-                if (task->state == 2) {
+                if (task->state == 3 && task->category != 4) {
                     gtk_list_store_append(list_store_archive2, &iter_archive2);
                 }
             }
@@ -180,7 +180,7 @@ void refresh_treeview(gpointer user_data) {
         int hour = spent_second / (3600);
         int minute = (spent_second - hour * 3600) / 60;
         sprintf(buffer2, "%dh%dm", hour, minute);
-
+        // state: 0，正在进行，4待处理，3搁置，2归档
         if (task->state == 0 || task->state == 4) {
             gtk_list_store_set(list_store, &iter,
             0, task->id,
@@ -192,14 +192,14 @@ void refresh_treeview(gpointer user_data) {
             6, task->plan_progress,
             7, task->num_execution,
             8, buffer2, -1);
-        } if (task->state == 3) {
+        } if (task->state == 3 && task->category == 4) {
             gtk_list_store_set(list_store_archive, &iter_archive,
                                 0, task->id,
                                 1, state,
                                 2, setting->name_category[task->category],
                                 3, task->name, -1);
         } else {
-            if (task->state == 2) {
+            if (task->state == 3 && task->category != 4) {
                 gtk_list_store_set(list_store_archive2, &iter_archive2,
                                    0, task->id,
                                    1, state,
@@ -1496,7 +1496,7 @@ gboolean  on_archive_treeview_right_click(GtkWidget *widget, GdkEventButton *eve
             const int idx = get_idx(all_task, setting->num_task, setting->selected_id);
             TTimerTask *task = select_task_idx(setting, all_task, idx);
             task->state = 0;
-            task->plan_progress = 99;
+//            task->plan_progress = 99;
             setting->change_unsaved = true;
             char app_buffer[100];
             sprintf(app_buffer, "*%s v%s", setting->app_name, setting->version);
@@ -1606,7 +1606,7 @@ void cell_data_func2(GtkTreeViewColumn *col, GtkCellRenderer *cell, GtkTreeModel
     gtk_tree_model_get(model, iter, 0, &text, 2, &value, -1);
 
     // 设置单元格背景色
-    if (strcmp(value, "周期") == 0) {
+    if (value != NULL && strcmp(value, "周期") == 0) {
         // 如果第二列的值大于20，设置背景色为红色
         g_object_set(cell, "background", "grey", NULL);
     } else {
