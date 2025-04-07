@@ -232,7 +232,7 @@ void load_task(gpointer user_data) {
             }
         }
     }
-    char buffer[100];
+    char buffer[500];
     if (setting->change_unsaved) {
         sprintf(buffer, "*%s v%s", setting->app_name, setting->version);
     } else {
@@ -279,7 +279,7 @@ void on_add_task_button_clicked(GtkWidget *widget, gpointer user_data) {
         8, "0h0m", -1);
     setting->change_unsaved = true;
     GtkWidget *main_window = data->window;
-    char buffer[100];
+    char buffer[500];
     sprintf(buffer, "*%s v%s", setting->app_name, setting->version);
     gtk_window_set_title(GTK_WINDOW(main_window), buffer);
 }
@@ -305,7 +305,7 @@ void revise_task(GtkWidget *widget, gpointer user_data) {
     if (idx == -1) {
         task = (TTimerTask *)malloc(sizeof(TTimerTask));
         task->id = setting->num_task;
-        char *name = malloc(100*sizeof(char));
+        char *name = malloc(500*sizeof(char));
         sprintf(name, "Untitled-%d", task->id);
         task->name = name;
         task->category = 0;
@@ -584,7 +584,7 @@ void on_edit_task_button_clicked(GtkWidget *widget, gpointer user_data) {
         //     8, buffer2, -1);
 
         setting->change_unsaved = true;
-        char buffer[100];
+        char buffer[500];
         sprintf(buffer, "*%s v%s", setting->app_name, setting->version);
         gtk_window_set_title(GTK_WINDOW(main_window), buffer);
     }
@@ -627,7 +627,7 @@ void on_delete_task_button_clicked(GtkWidget *widget, gpointer user_data) {
 
 
     GtkWidget *main_window = data->window;
-    char buffer[100];
+    char buffer[500];
     sprintf(buffer, "*%s v%s", setting->app_name, setting->version);
     gtk_window_set_title(GTK_WINDOW(main_window), buffer);
 }
@@ -666,7 +666,7 @@ void on_start_task_button_clicked(GtkWidget *widget, gpointer user_data){
             }
             gtk_list_store_set(list_store, &iter, 1, state, 7, task->num_execution, -1);
             GtkWidget *main_window = data->window;
-            char buffer[100];
+            char buffer[500];
             sprintf(buffer, "*%s v%s", setting->app_name, setting->version);
             gtk_window_set_title(GTK_WINDOW(main_window), buffer);
         }
@@ -738,7 +738,7 @@ void on_stop_task_button_clicked(GtkWidget *widget, gpointer user_data) {
             if (err_inf == 0) {
                 task->plan_progress = (int)gtk_range_get_value(GTK_RANGE(progress_bar));
                 printf("note: %s\n", gtk_entry_get_text(GTK_ENTRY(note_entry)));
-                task->execution_note[task->num_execution-1] = (char *) malloc(300*sizeof(char));
+                task->execution_note[task->num_execution-1] = (char *) malloc(500*sizeof(char));
                 strcpy(task->execution_note[task->num_execution-1], gtk_entry_get_text(GTK_ENTRY(note_entry)));
                 // if (task->plan_progress == 100) {
                 //     g_object_set(data->renderer, "background", "grey", NULL);
@@ -764,7 +764,7 @@ void on_stop_task_button_clicked(GtkWidget *widget, gpointer user_data) {
 
                 gtk_list_store_set(list_store, &iter, 1, state, 7, task->num_execution, 8, buffer2, -1);
                 printf("fore-end stopped\n");
-                char buffer[100];
+                char buffer[500];
                 sprintf(buffer, "*%s v%s", setting->app_name, setting->version);
                 gtk_window_set_title(GTK_WINDOW(main_window), buffer);
 
@@ -1344,7 +1344,7 @@ void on_detail_revise_button_clicked(GtkWidget *widget, gpointer user_data){
                 2, buffer, -1);
 
             setting->change_unsaved = true;
-            char app_buffer[100];
+            char app_buffer[500];
             sprintf(app_buffer, "*%s v%s", setting->app_name, setting->version);
             gtk_window_set_title(GTK_WINDOW(main_window), app_buffer);
         }
@@ -1459,7 +1459,7 @@ gboolean  on_task_treeview_right_click(GtkWidget *widget, GdkEventButton *event,
             TTimerTask *task = select_task_idx(setting, all_task, idx);
             task->state = 3;
             setting->change_unsaved = true;
-            char app_buffer[100];
+            char app_buffer[500];
             sprintf(app_buffer, "*%s v%s", setting->app_name, setting->version);
             gtk_window_set_title(GTK_WINDOW(data->window), app_buffer);
             // 刷新task和archive列表
@@ -1498,7 +1498,7 @@ gboolean  on_archive_treeview_right_click(GtkWidget *widget, GdkEventButton *eve
             task->state = 0;
 //            task->plan_progress = 99;
             setting->change_unsaved = true;
-            char app_buffer[100];
+            char app_buffer[500];
             sprintf(app_buffer, "*%s v%s", setting->app_name, setting->version);
             gtk_window_set_title(GTK_WINDOW(data->window), app_buffer);
             // 刷新task和archive列表
@@ -1509,7 +1509,8 @@ gboolean  on_archive_treeview_right_click(GtkWidget *widget, GdkEventButton *eve
     return FALSE; // 右键后仍可以显示左键点击
 }
 
-gboolean  on_archive_treeview2_right_click(GtkWidget *widget, GdkEventButton *event, gpointer user_data) {
+
+gboolean on_archive_treeview2_right_click(GtkWidget *widget, GdkEventButton *event, gpointer user_data) {
     // 右键点击事件
     if (event->button == GDK_BUTTON_SECONDARY) {
         TTimerData *data = (TTimerData *)user_data;
@@ -1536,7 +1537,7 @@ gboolean  on_archive_treeview2_right_click(GtkWidget *widget, GdkEventButton *ev
             TTimerTask *task = select_task_idx(setting, all_task, idx);
             task->state = 0;
             setting->change_unsaved = true;
-            char app_buffer[100];
+            char app_buffer[500];
             sprintf(app_buffer, "*%s v%s", setting->app_name, setting->version);
             gtk_window_set_title(GTK_WINDOW(data->window), app_buffer);
             // 刷新task和archive列表
