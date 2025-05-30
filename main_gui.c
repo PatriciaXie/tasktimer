@@ -52,7 +52,7 @@ static void activate(GtkApplication *app, gpointer user_data0) {
     char buffer[100];
     sprintf(buffer, "%s%s v%s", setting->change_unsaved ? "*":"",setting->app_name, setting->version);
     gtk_window_set_title(GTK_WINDOW(window), buffer);
-    const int width = 1600;
+    const int width = 1440;
     const int height = 900;
     gtk_window_set_default_size(GTK_WINDOW(window), width, height+50);
     gtk_window_maximize(GTK_WINDOW(window));
@@ -372,11 +372,11 @@ static void activate(GtkApplication *app, gpointer user_data0) {
     gtk_paned_add2(GTK_PANED(v_paned4), scrolled_window_archive2); // 将上面的水平分隔添加到垂直分隔
 
     // 初始化paned大小
-    int left_width = (int)((double)width * 0.55);
-    gtk_paned_set_position(GTK_PANED(v_paned), height/2);  // 设置垂直分隔控件，均分上下区域
+    int left_width = (int)((double)width * 0.45);
+    gtk_paned_set_position(GTK_PANED(v_paned), (int)((double)height * 0.4));  // 设置垂直分隔控件，均分上下区域
     gtk_paned_set_position(GTK_PANED(top_paned), left_width); // 设置水平分隔控件，均分左右区域
     gtk_paned_set_position(GTK_PANED(bottom_paned), left_width); // 设置水平分隔控件，均分左右区域
-    gtk_paned_set_position(GTK_PANED(v_paned4), (width-left_width)*0.7); // 设置水平分隔控件，均分左右区域
+    gtk_paned_set_position(GTK_PANED(v_paned4), (int)((double)(width-left_width) * 0.5)); // 设置水平分隔控件，均分左右区域
 
     gtk_box_pack_start(GTK_BOX(main_box), v_paned, TRUE, TRUE, 0); // 将垂直分隔放进主box
     gtk_container_add(GTK_CONTAINER(window), main_box); // 将主box放进主窗口
